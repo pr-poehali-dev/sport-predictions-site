@@ -13,10 +13,10 @@ const nav = [
 ];
 
 const predictions = [
-  { sport: '⚽', match: 'Реал Мадрид — Барселона', league: 'Ла Лига', bet: 'Победа Реала', coef: '2.10', conf: 92, time: 'Сегодня 22:00', price: 990, hot: true },
-  { sport: '🏀', match: 'Лейкерс — Бостон Селтикс', league: 'NBA', bet: 'Тотал больше 215.5', coef: '1.85', conf: 88, time: 'Завтра 04:30', price: 790, hot: false },
-  { sport: '🎾', match: 'Джокович — Алькарас', league: 'ATP Finals', bet: 'Победа Джоковича', coef: '1.95', conf: 85, time: 'Сегодня 19:00', price: 690, hot: false },
-  { sport: '⚽', match: 'Бавария — Боруссия Д', league: 'Бундеслига', bet: 'Обе забьют', coef: '1.60', conf: 90, time: 'Завтра 19:30', price: 890, hot: true },
+  { sport: '⚽', match: 'ПСЖ — Арсенал', league: 'Финал ЛЧ · 30 мая 2026', bet: 'Обе команды забьют', coef: '1.72', conf: 91, time: '✅ Зашло: 1:1 д.в., пен. 4:3', price: 1490, hot: true, result: true },
+  { sport: '⚽', match: 'ПСЖ — Бавария', league: 'Полуфинал ЛЧ · май 2026', bet: 'Тотал больше 3.5 (2 матча)', coef: '1.88', conf: 87, time: '✅ Зашло: 6:5 по итогам', price: 990, hot: true, result: true },
+  { sport: '🏀', match: 'Никс — Оклахома', league: 'Финал NBA · июнь 2026', bet: 'Победа Никс', coef: '2.05', conf: 83, time: '✅ Зашло: Никс — чемпионы', price: 890, hot: false, result: true },
+  { sport: '⚽', match: 'Арсенал — Ньюкасл', league: 'АПЛ · 5 апреля 2026', bet: 'Победа Арсенала', coef: '1.65', conf: 89, time: '✅ Зашло: 2:0', price: 690, hot: false, result: true },
 ];
 
 const analysts = [
@@ -26,9 +26,12 @@ const analysts = [
 ];
 
 const chatMessages = [
-  { user: 'Алексей Громов', analyst: true, text: 'Сегодня даю экспресс на ЛЧ. Проходимость высокая, разбор внутри.', time: '14:02' },
-  { user: 'Сергей М.', analyst: false, text: 'Спасибо за вчерашний прогноз, зашло 🔥', time: '14:05' },
-  { user: 'Дмитрий Орлов', analyst: true, text: 'По NBA вечером будет инсайд по травмам. Следите за каналом.', time: '14:11' },
+  { user: 'Алексей Громов', analyst: true, text: 'Финал ЛЧ ПСЖ — Арсенал: давал «обе забьют», прошло в дополнительное время 1:1, серия пенальти. Поздравляю всех кто взял! ✅', time: '30 мая, 23:47' },
+  { user: 'Максим К.', analyst: false, text: 'Огромное спасибо! Поставил на обе забьют по твоей рекомендации, зашло в идеальный момент 🎉', time: '30 мая, 23:51' },
+  { user: 'Дмитрий Орлов', analyst: true, text: 'По финалу NBA — Никс взяли чемпионство! Кто брал победу Никс с кф 2.05 — отличный заход. Следующий разбор по Евробаскету выйдет в пятницу.', time: '18 июн, 10:22' },
+  { user: 'Андрей В.', analyst: false, text: 'Дмитрий, спасибо! Третий прогноз подряд в плюс. Никс взял, плюс ещё ПСЖ на выход из полуфинала ЛЧ зашло 🔥', time: '18 июн, 10:35' },
+  { user: 'Игорь Соколов', analyst: true, text: 'Ребята, готовлю разбор Roland Garros — финал мужчин. Алькарас в отличной форме, коэф привлекательный. Публикую вечером.', time: '8 июн, 16:04' },
+  { user: 'Сергей М.', analyst: false, text: 'Игорь, по Арсенал — Ньюкасл 2:0 тоже зашло на прошлой неделе! Подписка на этот месяц точно отбилась 😄', time: '6 апр, 09:18' },
 ];
 
 const Brand = ({ className = '' }: { className?: string }) => (
@@ -118,8 +121,8 @@ const Index = () => {
       <section className="container px-4 py-20">
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">Витрина</span>
-            <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Прогнозы дня</h2>
+            <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">История побед</span>
+            <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Наши прогнозы</h2>
           </div>
           <Button variant="ghost" className="hidden text-primary sm:inline-flex">
             Все прогнозы <Icon name="ArrowRight" size={18} className="ml-1" />
@@ -129,14 +132,12 @@ const Index = () => {
           {predictions.map((p, i) => (
             <div
               key={i}
-              className="group relative animate-scale-in overflow-hidden rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+              className="group relative animate-scale-in overflow-hidden rounded-xl border border-green-200 bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
               style={{ animationDelay: `${i * 0.08}s` }}
             >
-              {p.hot && (
-                <span className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-700 text-secondary-foreground">
-                  <Icon name="Flame" size={12} /> HOT
-                </span>
-              )}
+              <span className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-700 text-green-700">
+                <Icon name="CheckCircle2" size={12} /> ЗАШЛО
+              </span>
               <div className="mb-3 text-3xl">{p.sport}</div>
               <div className="text-xs font-600 uppercase tracking-wider text-muted-foreground">{p.league}</div>
               <h3 className="mt-1 font-display text-lg font-700 leading-tight text-primary">{p.match}</h3>
@@ -151,12 +152,11 @@ const Index = () => {
                   <span className="font-700 text-primary">{p.conf}%</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${p.conf}%` }} />
+                  <div className="h-full rounded-full bg-green-500" style={{ width: `${p.conf}%` }} />
                 </div>
               </div>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{p.time}</span>
-                <Button size="sm" className="font-600">{p.price} ₽</Button>
+              <div className="mt-4 rounded-lg bg-green-50 px-3 py-2 text-xs font-600 text-green-700">
+                {p.time}
               </div>
             </div>
           ))}
