@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
+import { historyData } from '@/data/historyData';
 
 const HERO_IMG = 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/cc9d23a4-7ede-41dc-8e68-2c98c565e584.jpg';
 
@@ -19,30 +20,6 @@ const upcoming = [
   { sport: '🏀', match: 'Евробаскет 2026', league: 'Групповой этап · старт', desc: 'Серия прогнозов на групповой этап от Дмитрия Орлова.', date: '26 июня 2026', analyst: 'Дмитрий Орлов', price: 790 },
   { sport: '🎾', match: 'Уимблдон 2026', league: 'Старт турнира', desc: 'Сетка, фавориты, ставки на первые круги.', date: '30 июня 2026', analyst: 'Игорь Соколов', price: 690 },
   { sport: '⚽', match: 'Суперкубок Испании', league: 'Реал — Барселона', desc: 'Классика! Детальный предматчевый разбор эль-класико.', date: '12 июля 2026', analyst: 'Алексей Громов', price: 1290 },
-];
-
-// История прогнозов янв–19 июн 2026 (85% успешных, 15% нет)
-const historyData = [
-  { sport: '⚽', match: 'Реал Мадрид — Барселона', league: 'Ла Лига', bet: 'Тотал больше 2.5', coef: '1.60', date: '11 янв', won: true },
-  { sport: '🏀', match: 'Лейкерс — Бостон', league: 'NBA', bet: 'Победа Лейкерс', coef: '1.95', date: '14 янв', won: true },
-  { sport: '⚽', match: 'Арсенал — Тоттенхэм', league: 'АПЛ', bet: 'Победа Арсенала', coef: '1.75', date: '18 янв', won: true },
-  { sport: '🎾', match: 'Синнер — Медведев', league: 'Australian Open', bet: 'Победа Синнера', coef: '1.85', date: '24 янв', won: true },
-  { sport: '⚽', match: 'Бавария — Боруссия Д', league: 'Бундеслига', bet: 'Обе забьют', coef: '1.55', date: '1 фев', won: false },
-  { sport: '⚽', match: 'ПСЖ — Марсель', league: 'Лига 1', bet: 'Победа ПСЖ', coef: '1.50', date: '5 фев', won: true },
-  { sport: '🏀', match: 'Никс — Бостон', league: 'NBA', bet: 'Тотал больше 220.5', coef: '1.90', date: '9 фев', won: true },
-  { sport: '⚽', match: 'Манчестер Сити — Ливерпуль', league: 'АПЛ', bet: 'Тотал больше 2.5', coef: '1.65', date: '16 фев', won: true },
-  { sport: '⚽', match: 'Реал — Атлетико', league: 'Ла Лига', bet: 'Обе забьют', coef: '1.70', date: '23 фев', won: false },
-  { sport: '🎾', match: 'Алькарас — Рублёв', league: 'ATP 500 Дубай', bet: 'Победа Алькараса', coef: '1.60', date: '1 мар', won: true },
-  { sport: '⚽', match: 'Интер — Милан', league: 'Серия А', bet: 'Победа Интера', coef: '2.05', date: '8 мар', won: true },
-  { sport: '🏀', match: 'Кавальерс — Рэпторс', league: 'NBA плей-офф', bet: 'Победа Кавальерс', coef: '1.80', date: '20 апр', won: true },
-  { sport: '⚽', match: 'Арсенал — Ньюкасл', league: 'АПЛ', bet: 'Победа Арсенала', coef: '1.65', date: '5 апр', won: true },
-  { sport: '⚽', match: 'Барселона — Жирона', league: 'Ла Лига', bet: 'Тотал больше 3.5', coef: '1.85', date: '13 апр', won: false },
-  { sport: '🏀', match: 'Лейкерс — Рокетс', league: 'NBA плей-офф', bet: 'Победа Лейкерс', coef: '1.90', date: '22 апр', won: true },
-  { sport: '⚽', match: 'ПСЖ — Арсенал', league: 'Полуфинал ЛЧ (1 матч)', bet: 'Обе забьют', coef: '1.75', date: '29 апр', won: true },
-  { sport: '⚽', match: 'Бавария — ПСЖ', league: 'Полуфинал ЛЧ', bet: 'Тотал больше 3.5', coef: '1.88', date: '6 мая', won: true },
-  { sport: '🎾', match: 'Алькарас — Синнер', league: 'Roland Garros, финал', bet: 'Тотал геймов больше 38.5', coef: '1.70', date: '8 июн', won: false },
-  { sport: '🏀', match: 'Никс — Оклахома', league: 'Финал NBA', bet: 'Победа Никс', coef: '2.05', date: '12 июн', won: true },
-  { sport: '⚽', match: 'ПСЖ — Арсенал', league: 'Финал ЛЧ', bet: 'Обе команды забьют', coef: '1.72', date: '30 мая', won: true },
 ];
 
 const wonCount = historyData.filter(h => h.won).length;
