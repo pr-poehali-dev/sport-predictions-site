@@ -8,16 +8,46 @@ const nav = [
   { id: 'home', label: 'Главная' },
   { id: 'predictions', label: 'Прогнозы' },
   { id: 'analytics', label: 'Аналитика' },
+  { id: 'stats', label: 'Статистика' },
   { id: 'chat', label: 'Чат' },
   { id: 'profile', label: 'Профиль' },
 ];
 
-const predictions = [
-  { sport: '⚽', match: 'ПСЖ — Арсенал', league: 'Финал ЛЧ · 30 мая 2026', bet: 'Обе команды забьют', coef: '1.72', conf: 91, time: '✅ Зашло: 1:1 д.в., пен. 4:3', price: 1490, hot: true, result: true },
-  { sport: '⚽', match: 'ПСЖ — Бавария', league: 'Полуфинал ЛЧ · май 2026', bet: 'Тотал больше 3.5 (2 матча)', coef: '1.88', conf: 87, time: '✅ Зашло: 6:5 по итогам', price: 990, hot: true, result: true },
-  { sport: '🏀', match: 'Никс — Оклахома', league: 'Финал NBA · июнь 2026', bet: 'Победа Никс', coef: '2.05', conf: 83, time: '✅ Зашло: Никс — чемпионы', price: 890, hot: false, result: true },
-  { sport: '⚽', match: 'Арсенал — Ньюкасл', league: 'АПЛ · 5 апреля 2026', bet: 'Победа Арсенала', coef: '1.65', conf: 89, time: '✅ Зашло: 2:0', price: 690, hot: false, result: true },
+// Анонсы предстоящих прогнозов на главной
+const upcoming = [
+  { sport: '⚽', match: 'Испания — Франция', league: 'Лига Наций · полуфинал', desc: 'Разбор тактики, статистика личных встреч, состав.', date: '25 июня 2026', analyst: 'Алексей Громов', price: 990 },
+  { sport: '🏀', match: 'Евробаскет 2026', league: 'Групповой этап · старт', desc: 'Серия прогнозов на групповой этап от Дмитрия Орлова.', date: '26 июня 2026', analyst: 'Дмитрий Орлов', price: 790 },
+  { sport: '🎾', match: 'Уимблдон 2026', league: 'Старт турнира', desc: 'Сетка, фавориты, ставки на первые круги.', date: '30 июня 2026', analyst: 'Игорь Соколов', price: 690 },
+  { sport: '⚽', match: 'Суперкубок Испании', league: 'Реал — Барселона', desc: 'Классика! Детальный предматчевый разбор эль-класико.', date: '12 июля 2026', analyst: 'Алексей Громов', price: 1290 },
 ];
+
+// История прогнозов янв–19 июн 2026 (85% успешных, 15% нет)
+const historyData = [
+  { sport: '⚽', match: 'Реал Мадрид — Барселона', league: 'Ла Лига', bet: 'Тотал больше 2.5', coef: '1.60', date: '11 янв', won: true },
+  { sport: '🏀', match: 'Лейкерс — Бостон', league: 'NBA', bet: 'Победа Лейкерс', coef: '1.95', date: '14 янв', won: true },
+  { sport: '⚽', match: 'Арсенал — Тоттенхэм', league: 'АПЛ', bet: 'Победа Арсенала', coef: '1.75', date: '18 янв', won: true },
+  { sport: '🎾', match: 'Синнер — Медведев', league: 'Australian Open', bet: 'Победа Синнера', coef: '1.85', date: '24 янв', won: true },
+  { sport: '⚽', match: 'Бавария — Боруссия Д', league: 'Бундеслига', bet: 'Обе забьют', coef: '1.55', date: '1 фев', won: false },
+  { sport: '⚽', match: 'ПСЖ — Марсель', league: 'Лига 1', bet: 'Победа ПСЖ', coef: '1.50', date: '5 фев', won: true },
+  { sport: '🏀', match: 'Никс — Бостон', league: 'NBA', bet: 'Тотал больше 220.5', coef: '1.90', date: '9 фев', won: true },
+  { sport: '⚽', match: 'Манчестер Сити — Ливерпуль', league: 'АПЛ', bet: 'Тотал больше 2.5', coef: '1.65', date: '16 фев', won: true },
+  { sport: '⚽', match: 'Реал — Атлетико', league: 'Ла Лига', bet: 'Обе забьют', coef: '1.70', date: '23 фев', won: false },
+  { sport: '🎾', match: 'Алькарас — Рублёв', league: 'ATP 500 Дубай', bet: 'Победа Алькараса', coef: '1.60', date: '1 мар', won: true },
+  { sport: '⚽', match: 'Интер — Милан', league: 'Серия А', bet: 'Победа Интера', coef: '2.05', date: '8 мар', won: true },
+  { sport: '🏀', match: 'Кавальерс — Рэпторс', league: 'NBA плей-офф', bet: 'Победа Кавальерс', coef: '1.80', date: '20 апр', won: true },
+  { sport: '⚽', match: 'Арсенал — Ньюкасл', league: 'АПЛ', bet: 'Победа Арсенала', coef: '1.65', date: '5 апр', won: true },
+  { sport: '⚽', match: 'Барселона — Жирона', league: 'Ла Лига', bet: 'Тотал больше 3.5', coef: '1.85', date: '13 апр', won: false },
+  { sport: '🏀', match: 'Лейкерс — Рокетс', league: 'NBA плей-офф', bet: 'Победа Лейкерс', coef: '1.90', date: '22 апр', won: true },
+  { sport: '⚽', match: 'ПСЖ — Арсенал', league: 'Полуфинал ЛЧ (1 матч)', bet: 'Обе забьют', coef: '1.75', date: '29 апр', won: true },
+  { sport: '⚽', match: 'Бавария — ПСЖ', league: 'Полуфинал ЛЧ', bet: 'Тотал больше 3.5', coef: '1.88', date: '6 мая', won: true },
+  { sport: '🎾', match: 'Алькарас — Синнер', league: 'Roland Garros, финал', bet: 'Тотал геймов больше 38.5', coef: '1.70', date: '8 июн', won: false },
+  { sport: '🏀', match: 'Никс — Оклахома', league: 'Финал NBA', bet: 'Победа Никс', coef: '2.05', date: '12 июн', won: true },
+  { sport: '⚽', match: 'ПСЖ — Арсенал', league: 'Финал ЛЧ', bet: 'Обе команды забьют', coef: '1.72', date: '30 мая', won: true },
+];
+
+const wonCount = historyData.filter(h => h.won).length;
+const lostCount = historyData.filter(h => !h.won).length;
+const winRate = Math.round((wonCount / historyData.length) * 100);
 
 const analysts = [
   { name: 'Алексей Громов', spec: 'Футбол · ТОП-аналитик', roi: '+47%', online: true },
@@ -43,6 +73,11 @@ const Brand = ({ className = '' }: { className?: string }) => (
 const Index = () => {
   const [active, setActive] = useState('home');
   const [msg, setMsg] = useState('');
+  const [statsFilter, setStatsFilter] = useState<'all' | 'won' | 'lost'>('all');
+
+  const filteredHistory = historyData.filter(h =>
+    statsFilter === 'all' ? true : statsFilter === 'won' ? h.won : !h.won
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -55,7 +90,7 @@ const Index = () => {
             </div>
             <Brand className="text-xl" />
           </div>
-          <nav className="hidden items-center gap-7 md:flex">
+          <nav className="hidden items-center gap-6 md:flex">
             {nav.map((n) => (
               <button
                 key={n.id}
@@ -86,7 +121,7 @@ const Index = () => {
           <div className="max-w-3xl text-primary-foreground">
             <div className="mb-6 inline-flex animate-fade-in items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-sm font-500 backdrop-blur">
               <Icon name="BadgeCheck" size={16} className="text-secondary" />
-              Проходимость прогнозов 87% за месяц
+              Проходимость прогнозов 85% с января 2026
             </div>
             <h1 className="animate-fade-in font-display text-5xl font-900 uppercase leading-[0.95] tracking-tight md:text-7xl" style={{ animationDelay: '0.1s' }}>
               Точная<br />
@@ -101,12 +136,12 @@ const Index = () => {
                 <Icon name="ShoppingCart" size={20} className="mr-2" />
                 Купить прогноз
               </Button>
-              <Button size="lg" variant="outline" className="h-13 border-white/40 bg-transparent px-8 text-base font-600 text-white hover:bg-white hover:text-primary">
-                Смотреть аналитику
+              <Button size="lg" variant="outline" onClick={() => setActive('stats')} className="h-13 border-white/40 bg-transparent px-8 text-base font-600 text-white hover:bg-white hover:text-primary">
+                Наша статистика
               </Button>
             </div>
             <div className="mt-14 grid max-w-lg grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              {[['12 400+', 'клиентов'], ['87%', 'проходимость'], ['+42%', 'средний ROI']].map(([v, l]) => (
+              {[['12 400+', 'клиентов'], ['85%', 'проходимость'], ['+42%', 'средний ROI']].map(([v, l]) => (
                 <div key={l}>
                   <div className="font-display text-3xl font-800 text-secondary md:text-4xl">{v}</div>
                   <div className="text-sm text-white/70">{l}</div>
@@ -117,66 +152,148 @@ const Index = () => {
         </div>
       </section>
 
-      {/* PREDICTIONS */}
+      {/* UPCOMING PREDICTIONS */}
       <section className="container px-4 py-20">
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">История побед</span>
-            <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Наши прогнозы</h2>
+            <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">Скоро</span>
+            <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Ближайшие прогнозы</h2>
           </div>
           <Button variant="ghost" className="hidden text-primary sm:inline-flex">
             Все прогнозы <Icon name="ArrowRight" size={18} className="ml-1" />
           </Button>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {predictions.map((p, i) => (
+          {upcoming.map((p, i) => (
             <div
               key={i}
-              className="group relative animate-scale-in overflow-hidden rounded-xl border border-green-200 bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+              className="group relative animate-scale-in flex flex-col overflow-hidden rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
               style={{ animationDelay: `${i * 0.08}s` }}
             >
-              <span className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-700 text-green-700">
-                <Icon name="CheckCircle2" size={12} /> ЗАШЛО
-              </span>
               <div className="mb-3 text-3xl">{p.sport}</div>
               <div className="text-xs font-600 uppercase tracking-wider text-muted-foreground">{p.league}</div>
               <h3 className="mt-1 font-display text-lg font-700 leading-tight text-primary">{p.match}</h3>
-              <div className="mt-4 rounded-lg bg-muted p-3">
-                <div className="text-xs text-muted-foreground">Ставка аналитика</div>
-                <div className="font-600">{p.bet}</div>
-                <div className="mt-1 font-display text-2xl font-800 text-secondary">{p.coef}</div>
+              <p className="mt-2 text-sm text-muted-foreground flex-1">{p.desc}</p>
+              <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
+                <Icon name="Calendar" size={14} className="text-muted-foreground" />
+                <span className="text-xs font-600">{p.date}</span>
               </div>
-              <div className="mt-3">
-                <div className="mb-1 flex justify-between text-xs">
-                  <span className="text-muted-foreground">Уверенность</span>
-                  <span className="font-700 text-primary">{p.conf}%</span>
-                </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-green-500" style={{ width: `${p.conf}%` }} />
-                </div>
+              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                <Icon name="User" size={13} />
+                {p.analyst}
               </div>
-              <div className="mt-4 rounded-lg bg-green-50 px-3 py-2 text-xs font-600 text-green-700">
-                {p.time}
-              </div>
+              <Button className="mt-4 w-full font-700">
+                <Icon name="ShoppingCart" size={16} className="mr-2" />
+                {p.price} ₽
+              </Button>
             </div>
           ))}
         </div>
       </section>
 
+      {/* STATISTICS */}
+      <section className="border-y border-border bg-muted/40" id="stats">
+        <div className="container px-4 py-20">
+          <div className="mb-10 text-center">
+            <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">История</span>
+            <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Статистика прогнозов</h2>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Все прогнозы с января по 19 июня 2026 — честно, без фильтров.</p>
+          </div>
+
+          {/* Итоговые цифры */}
+          <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              { icon: 'ListChecks', v: String(historyData.length), l: 'прогнозов всего', color: 'text-primary' },
+              { icon: 'CheckCircle2', v: String(wonCount), l: 'зашло', color: 'text-green-600' },
+              { icon: 'XCircle', v: String(lostCount), l: 'не зашло', color: 'text-red-500' },
+              { icon: 'Percent', v: `${winRate}%`, l: 'проходимость', color: 'text-secondary' },
+            ].map((c) => (
+              <div key={c.l} className="rounded-xl border border-border bg-card p-5 text-center shadow-sm">
+                <div className={`flex justify-center ${c.color}`}>
+                  <Icon name={c.icon} size={26} />
+                </div>
+                <div className={`mt-2 font-display text-3xl font-800 ${c.color}`}>{c.v}</div>
+                <div className="text-sm text-muted-foreground">{c.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Полоска win/loss */}
+          <div className="mb-10 rounded-xl border border-border bg-card p-6 shadow-sm">
+            <div className="mb-3 flex justify-between text-sm font-700">
+              <span className="text-green-600">✅ Зашло — {winRate}%</span>
+              <span className="text-red-500">❌ Не зашло — {100 - winRate}%</span>
+            </div>
+            <div className="flex h-4 w-full overflow-hidden rounded-full">
+              <div className="h-full bg-green-500 transition-all" style={{ width: `${winRate}%` }} />
+              <div className="h-full flex-1 bg-red-400" />
+            </div>
+          </div>
+
+          {/* Фильтры */}
+          <div className="mb-6 flex gap-2">
+            {([['all', 'Все'], ['won', '✅ Зашло'], ['lost', '❌ Не зашло']] as const).map(([k, l]) => (
+              <button
+                key={k}
+                onClick={() => setStatsFilter(k)}
+                className={`rounded-lg px-4 py-2 text-sm font-600 transition-colors ${
+                  statsFilter === k ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {/* Таблица */}
+          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <div className="grid grid-cols-[2fr_1.5fr_1.5fr_0.8fr_0.8fr] gap-0 border-b border-border bg-muted/50 px-5 py-3 text-xs font-700 uppercase tracking-wider text-muted-foreground">
+              <span>Матч</span>
+              <span className="hidden sm:block">Турнир</span>
+              <span className="hidden md:block">Ставка</span>
+              <span>Кф.</span>
+              <span>Итог</span>
+            </div>
+            <div className="divide-y divide-border">
+              {filteredHistory.map((h, i) => (
+                <div key={i} className={`grid grid-cols-[2fr_1.5fr_1.5fr_0.8fr_0.8fr] items-center gap-0 px-5 py-3.5 text-sm transition-colors hover:bg-muted/30 ${h.won ? '' : 'opacity-75'}`}>
+                  <div className="flex items-center gap-2 font-600">
+                    <span className="text-base">{h.sport}</span>
+                    <div>
+                      <div className="font-600 text-primary leading-tight">{h.match}</div>
+                      <div className="text-xs text-muted-foreground">{h.date}</div>
+                    </div>
+                  </div>
+                  <span className="hidden text-xs text-muted-foreground sm:block">{h.league}</span>
+                  <span className="hidden text-xs md:block">{h.bet}</span>
+                  <span className="font-display font-700 text-secondary">{h.coef}</span>
+                  <span>
+                    {h.won
+                      ? <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-700 text-green-700"><Icon name="Check" size={11} />Зашло</span>
+                      : <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-700 text-red-600"><Icon name="X" size={11} />Нет</span>
+                    }
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ANALYTICS */}
-      <section className="border-y border-border bg-muted/40">
-        <div className="container grid gap-12 px-4 py-20 lg:grid-cols-2">
+      <section className="container px-4 py-20">
+        <div className="grid gap-12 lg:grid-cols-2">
           <div>
             <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">Аналитика</span>
             <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Цифры, которым доверяют</h2>
             <p className="mt-4 text-muted-foreground">
-              Каждый прогноз подкреплён статистикой: форма команд, личные встречи, травмы и движение коэффициентов. Прозрачная история результатов.
+              Каждый прогноз подкреплён статистикой: форма команд, личные встречи, травмы и движение коэффициентов.
             </p>
             <div className="mt-8 space-y-4">
               {[
-                { l: 'Футбол', v: 89 },
+                { l: 'Футбол', v: 87 },
                 { l: 'Баскетбол', v: 84 },
-                { l: 'Теннис', v: 81 },
+                { l: 'Теннис', v: 80 },
                 { l: 'Хоккей', v: 78 },
               ].map((s, idx) => (
                 <div key={s.l}>
@@ -192,9 +309,9 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-2 gap-4 self-center">
             {[
-              { icon: 'Target', v: '2 840', l: 'прогнозов за сезон' },
+              { icon: 'Target', v: String(historyData.length), l: 'прогнозов за сезон' },
               { icon: 'TrendingUp', v: '+42%', l: 'средний ROI клиента' },
-              { icon: 'Trophy', v: '187', l: 'удачных экспрессов' },
+              { icon: 'Trophy', v: String(wonCount), l: 'успешных прогнозов' },
               { icon: 'Users', v: '12.4K', l: 'активных подписчиков' },
             ].map((c) => (
               <div key={c.l} className="rounded-xl border border-border bg-card p-6 shadow-sm">
@@ -210,72 +327,74 @@ const Index = () => {
       </section>
 
       {/* CHAT */}
-      <section className="container px-4 py-20">
-        <div className="mb-10 text-center">
-          <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">Сообщество</span>
-          <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Чат с аналитиками</h2>
-          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Общайтесь с экспертами и игроками в реальном времени, получайте инсайды и обсуждайте матчи.</p>
-        </div>
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-3">
-            {analysts.map((a) => (
-              <div key={a.name} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
-                <div className="relative">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground font-display font-700">
-                    {a.name[0]}
-                  </div>
-                  {a.online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-green-500" />}
-                </div>
-                <div className="flex-1">
-                  <div className="font-700 text-primary">{a.name}</div>
-                  <div className="text-xs text-muted-foreground">{a.spec}</div>
-                </div>
-                <span className="rounded-md bg-secondary/15 px-2 py-1 text-xs font-700 text-secondary">{a.roi}</span>
-              </div>
-            ))}
+      <section className="border-t border-border bg-muted/40">
+        <div className="container px-4 py-20">
+          <div className="mb-10 text-center">
+            <span className="font-display text-sm font-700 uppercase tracking-widest text-secondary">Сообщество</span>
+            <h2 className="font-display text-4xl font-800 uppercase tracking-tight text-primary md:text-5xl">Чат с аналитиками</h2>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Общайтесь с экспертами и игроками в реальном времени, получайте инсайды и обсуждайте матчи.</p>
           </div>
-          <div className="flex flex-col rounded-xl border border-border bg-card shadow-sm lg:col-span-2">
-            <div className="flex items-center justify-between border-b border-border p-4">
-              <div className="flex items-center gap-2 font-700 text-primary">
-                <Icon name="MessagesSquare" size={18} />
-                Общий чат
-              </div>
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className="h-2 w-2 rounded-full bg-green-500" /> 348 онлайн
-              </span>
-            </div>
-            <div className="flex-1 space-y-4 p-4">
-              {chatMessages.map((m, i) => (
-                <div key={i} className="flex gap-3">
-                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-700 ${m.analyst ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
-                    {m.user[0]}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-700">{m.user}</span>
-                      {m.analyst && <span className="rounded bg-secondary/20 px-1.5 text-xs font-600 text-secondary">аналитик</span>}
-                      <span className="text-xs text-muted-foreground">{m.time}</span>
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="space-y-3">
+              {analysts.map((a) => (
+                <div key={a.name} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+                  <div className="relative">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground font-display font-700">
+                      {a.name[0]}
                     </div>
-                    <p className="text-sm text-muted-foreground">{m.text}</p>
+                    {a.online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-green-500" />}
                   </div>
+                  <div className="flex-1">
+                    <div className="font-700 text-primary">{a.name}</div>
+                    <div className="text-xs text-muted-foreground">{a.spec}</div>
+                  </div>
+                  <span className="rounded-md bg-secondary/15 px-2 py-1 text-xs font-700 text-secondary">{a.roi}</span>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 border-t border-border p-4">
-              <input
-                value={msg}
-                onChange={(e) => setMsg(e.target.value)}
-                placeholder="Написать сообщение..."
-                className="flex-1 rounded-lg border border-border bg-background px-4 py-2 text-sm outline-none focus:border-primary"
-              />
-              <Button className="font-600"><Icon name="Send" size={18} /></Button>
+            <div className="flex flex-col rounded-xl border border-border bg-card shadow-sm lg:col-span-2">
+              <div className="flex items-center justify-between border-b border-border p-4">
+                <div className="flex items-center gap-2 font-700 text-primary">
+                  <Icon name="MessagesSquare" size={18} />
+                  Общий чат
+                </div>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="h-2 w-2 rounded-full bg-green-500" /> 348 онлайн
+                </span>
+              </div>
+              <div className="flex-1 space-y-4 p-4">
+                {chatMessages.map((m, i) => (
+                  <div key={i} className="flex gap-3">
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-700 ${m.analyst ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
+                      {m.user[0]}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-700">{m.user}</span>
+                        {m.analyst && <span className="rounded bg-secondary/20 px-1.5 text-xs font-600 text-secondary">аналитик</span>}
+                        <span className="text-xs text-muted-foreground">{m.time}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{m.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2 border-t border-border p-4">
+                <input
+                  value={msg}
+                  onChange={(e) => setMsg(e.target.value)}
+                  placeholder="Написать сообщение..."
+                  className="flex-1 rounded-lg border border-border bg-background px-4 py-2 text-sm outline-none focus:border-primary"
+                />
+                <Button className="font-600"><Icon name="Send" size={18} /></Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="container px-4 pb-20">
+      <section className="container px-4 py-20">
         <div className="relative overflow-hidden rounded-2xl bg-primary p-10 text-center text-primary-foreground md:p-16">
           <div className="absolute inset-0 grid-bg opacity-10" />
           <div className="relative">
