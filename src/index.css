@@ -4,35 +4,35 @@
 
 @layer base {
   :root {
-    --background: 222 30% 7%;
-    --foreground: 0 0% 98%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
-    --card: 222 28% 11%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 222 28% 11%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 142 90% 50%;
-    --primary-foreground: 222 40% 6%;
+    --primary: 222 80% 24%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 22 95% 55%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 222 20% 16%;
-    --muted-foreground: 215 15% 60%;
+    --muted: 214 32% 93%;
+    --muted-foreground: 215 16% 42%;
 
-    --accent: 22 95% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 222 20% 18%;
-    --input: 222 20% 18%;
-    --ring: 142 90% 50%;
+    --border: 214 28% 88%;
+    --input: 214 28% 88%;
+    --ring: 222 80% 24%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -97,14 +97,6 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    background-image:
-      radial-gradient(
-        circle at 15% 20%,
-        hsl(142 90% 50% / 0.08),
-        transparent 40%
-      ),
-      radial-gradient(circle at 85% 0%, hsl(22 95% 55% / 0.08), transparent 40%);
-    background-attachment: fixed;
   }
 }
 
