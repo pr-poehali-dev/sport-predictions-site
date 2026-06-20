@@ -290,8 +290,8 @@ export default function Index() {
           {/* ── СТАТИСТИКА ── */}
           {tab === 'stats' && (
             <div className="p-4 space-y-4">
-              <h2 className="font-display text-2xl font-800 uppercase text-primary">Статистика прогнозов</h2>
-              <p className="text-sm text-muted-foreground">Все прогнозы с 1 января по 19 июня 2026. Прошедшие матчи переносятся сюда автоматически.</p>
+              <h2 className="font-display text-2xl font-800 uppercase text-primary">Статистика за 2026 год</h2>
+              <p className="text-sm text-muted-foreground">Прошедшие матчи переносятся сюда автоматически.</p>
 
               {/* Итоги */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
