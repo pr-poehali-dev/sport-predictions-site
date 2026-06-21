@@ -5,7 +5,7 @@ import psycopg2
 SCHEMA = os.environ['MAIN_DB_SCHEMA']
 CORS = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-Authorization, Authorization',
 }
 
@@ -23,7 +23,7 @@ def get_user_id(event: dict):
         return None
 
 def handler(event: dict, context) -> dict:
-    """История покупок и добавление прогноза в кабинет"""
+    """История покупок, создание заявки на оплату и подтверждение (админ)"""
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS, 'body': ''}
 
@@ -36,10 +36,11 @@ def handler(event: dict, context) -> dict:
     conn = get_conn()
     cur = conn.cursor()
 
-    # Получить историю покупок
+    # GET — история покупок пользователя
     if method == 'GET':
         cur.execute(
-            f"""SELECT id, match_name, league, sport, analyst, price, prediction, purchase_date, match_date
+            f"""SELECT id, match_name, league, sport, analyst, price, prediction,
+                       purchase_date, match_date, status, payment_note
                 FROM {SCHEMA}.purchases WHERE user_id=%s ORDER BY purchase_date DESC""",
             (user_id,)
         )
@@ -49,19 +50,20 @@ def handler(event: dict, context) -> dict:
             {
                 'id': r[0], 'match_name': r[1], 'league': r[2], 'sport': r[3],
                 'analyst': r[4], 'price': r[5], 'prediction': r[6],
-                'purchase_date': str(r[7]), 'match_date': r[8]
+                'purchase_date': str(r[7]), 'match_date': r[8],
+                'status': r[9] or 'pending', 'payment_note': r[10]
             }
             for r in rows
         ]
         return {'statusCode': 200, 'headers': CORS, 'body': json.dumps({'ok': True, 'purchases': purchases})}
 
-    # Добавить покупку
+    # POST — создать заявку (статус pending, прогноз закрыт)
     if method == 'POST':
         body = json.loads(event.get('body') or '{}')
         cur.execute(
             f"""INSERT INTO {SCHEMA}.purchases
-                (user_id, match_name, league, sport, analyst, price, prediction, match_date)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                (user_id, match_name, league, sport, analyst, price, prediction, match_date, status)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,'pending') RETURNING id""",
             (
                 user_id,
                 body.get('match_name', ''),
@@ -69,7 +71,7 @@ def handler(event: dict, context) -> dict:
                 body.get('sport', ''),
                 body.get('analyst', ''),
                 body.get('price', 0),
-                body.get('prediction', ''),
+                '',
                 body.get('match_date', '')
             )
         )
@@ -77,6 +79,24 @@ def handler(event: dict, context) -> dict:
         conn.commit()
         conn.close()
         return {'statusCode': 200, 'headers': CORS, 'body': json.dumps({'ok': True, 'id': new_id})}
+
+    # PUT — подтвердить/отклонить/добавить прогноз (для админа)
+    if method == 'PUT':
+        body = json.loads(event.get('body') or '{}')
+        purchase_id = body.get('id')
+        new_status = body.get('status')  # confirmed / rejected
+        prediction = body.get('prediction', '')
+        payment_note = body.get('payment_note', '')
+
+        cur.execute(
+            f"""UPDATE {SCHEMA}.purchases
+                SET status=%s, prediction=%s, payment_note=%s
+                WHERE id=%s""",
+            (new_status, prediction, payment_note, purchase_id)
+        )
+        conn.commit()
+        conn.close()
+        return {'statusCode': 200, 'headers': CORS, 'body': json.dumps({'ok': True})}
 
     conn.close()
     return {'statusCode': 405, 'headers': CORS, 'body': json.dumps({'error': 'Method not allowed'})}

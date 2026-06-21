@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { historyData } from '@/data/historyData';
 import AuthModal from '@/components/AuthModal';
 import ProfilePage from '@/components/ProfilePage';
-import { apiMe, apiBuyPrediction } from '@/api';
+import PaymentModal from '@/components/PaymentModal';
+import { apiMe } from '@/api';
 
 const HERO_IMGS = [
   { url: 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/39caaf6f-240d-4753-b02b-47746d655bdb.jpg', label: 'Роналду' },
@@ -76,7 +77,7 @@ export default function Index() {
   const [statsPage, setStatsPage] = useState(1);
   const [user, setUser] = useState<User | null>(null);
   const [showAuth, setShowAuth] = useState(false);
-  const [buyingId, setBuyingId] = useState<number | null>(null);
+  const [payPrediction, setPayPrediction] = useState<typeof upcoming[0] | null>(null);
   const [buyDone, setBuyDone] = useState<number[]>([]);
   const PER_PAGE = 25;
 
@@ -100,18 +101,10 @@ export default function Index() {
     setTab('home');
   }
 
-  async function handleBuy(p: typeof upcoming[0], idx: number) {
+  function handleBuy(p: typeof upcoming[0], idx: number) {
     if (!user) { setShowAuth(true); return; }
-    setBuyingId(idx);
-    await apiBuyPrediction({
-      match_name: p.match, league: p.league, sport: p.sport,
-      analyst: p.analyst, price: p.price,
-      prediction: 'Прогноз будет доступен за 2 часа до матча',
-      match_date: p.dateStr,
-    });
-    setBuyingId(null);
+    setPayPrediction(p);
     setBuyDone(d => [...d, idx]);
-    setTab('profile');
   }
 
   const filteredHistory = useMemo(() =>
@@ -305,9 +298,9 @@ export default function Index() {
                         <div className="font-700 text-white truncate text-sm">{p.match}</div>
                         <div className="text-xs text-muted-foreground">{p.league} · {p.dateStr}</div>
                       </div>
-                      <Button size="sm" onClick={() => handleBuy(p, i)} disabled={buyDone.includes(i) || buyingId === i}
+                      <Button size="sm" onClick={() => handleBuy(p, i)} disabled={buyDone.includes(i)}
                         className="shrink-0 bg-secondary text-white font-700 text-xs hover:bg-secondary/90 glow-orange min-w-[70px]">
-                        {buyDone.includes(i) ? '✅ Куплен' : buyingId === i ? '...' : `${p.price} ₽`}
+                        {buyDone.includes(i) ? '✅ Заявка' : `${p.price} ₽`}
                       </Button>
                     </div>
                   ))}
@@ -369,13 +362,11 @@ export default function Index() {
                         <span className="font-600 text-white">{p.dateStr}</span>
                         <span className="ml-auto text-muted-foreground">{p.analyst}</span>
                       </div>
-                      <Button onClick={() => handleBuy(p, i)} disabled={buyDone.includes(i) || buyingId === i}
+                      <Button onClick={() => handleBuy(p, i)} disabled={buyDone.includes(i)}
                         className="mt-3 w-full font-700 bg-secondary text-white hover:bg-secondary/90 glow-orange">
                         {buyDone.includes(i)
-                          ? <><Icon name="Check" size={16} className="mr-2" /> Куплен</>
-                          : buyingId === i
-                            ? <Icon name="Loader2" size={16} className="animate-spin" />
-                            : <><Icon name="ShoppingCart" size={16} className="mr-2" /> {p.price} ₽</>
+                          ? <><Icon name="Check" size={16} className="mr-2" /> Заявка</>
+                          : <><Icon name="ShoppingCart" size={16} className="mr-2" /> {p.price} ₽</>
                         }
                       </Button>
                     </div>
@@ -629,6 +620,15 @@ export default function Index() {
         <AuthModal
           onSuccess={handleAuthSuccess}
           onClose={() => setShowAuth(false)}
+        />
+      )}
+
+      {/* Модалка оплаты */}
+      {payPrediction && (
+        <PaymentModal
+          prediction={payPrediction}
+          onClose={() => setPayPrediction(null)}
+          onSuccess={() => { setPayPrediction(null); setTab('profile'); }}
         />
       )}
     </div>
