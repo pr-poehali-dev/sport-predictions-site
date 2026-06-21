@@ -1,7 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { historyData } from '@/data/historyData';
+import AuthModal from '@/components/AuthModal';
+import ProfilePage from '@/components/ProfilePage';
+import { apiMe, apiBuyPrediction } from '@/api';
 
 const HERO_IMGS = [
   { url: 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/39caaf6f-240d-4753-b02b-47746d655bdb.jpg', label: 'Роналду' },
@@ -48,12 +51,15 @@ const chatMessages = [
   { user: 'Сергей М.', analyst: false, text: 'Подписка на этот месяц точно отбилась 😄 Жду Уимблдон!', time: '20 июн, 12:18' },
 ];
 
+interface User { id: number; email: string; first_name: string; last_name: string; }
+
 const tabs = [
   { id: 'home', label: 'Главная', icon: 'Home' },
   { id: 'predictions', label: 'Прогнозы', icon: 'TrendingUp' },
   { id: 'analytics', label: 'Аналитика', icon: 'BarChart3' },
   { id: 'stats', label: 'Статистика', icon: 'ListChecks' },
   { id: 'chat', label: 'Чат', icon: 'MessagesSquare' },
+  { id: 'profile', label: 'Кабинет', icon: 'User' },
 ];
 
 const Brand = () => (
@@ -68,7 +74,45 @@ export default function Index() {
   const [msg, setMsg] = useState('');
   const [statsFilter, setStatsFilter] = useState<'all' | 'won' | 'lost'>('all');
   const [statsPage, setStatsPage] = useState(1);
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [buyingId, setBuyingId] = useState<number | null>(null);
+  const [buyDone, setBuyDone] = useState<number[]>([]);
   const PER_PAGE = 25;
+
+  // Восстановить сессию при загрузке
+  useEffect(() => {
+    const token = localStorage.getItem('pp_token');
+    if (token) {
+      apiMe().then(res => { if (res.ok) setUser(res.user); });
+    }
+  }, []);
+
+  function handleAuthSuccess(u: User) {
+    setUser(u);
+    setShowAuth(false);
+    setTab('profile');
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('pp_token');
+    setUser(null);
+    setTab('home');
+  }
+
+  async function handleBuy(p: typeof upcoming[0], idx: number) {
+    if (!user) { setShowAuth(true); return; }
+    setBuyingId(idx);
+    await apiBuyPrediction({
+      match_name: p.match, league: p.league, sport: p.sport,
+      analyst: p.analyst, price: p.price,
+      prediction: 'Прогноз будет доступен за 2 часа до матча',
+      match_date: p.dateStr,
+    });
+    setBuyingId(null);
+    setBuyDone(d => [...d, idx]);
+    setTab('profile');
+  }
 
   const filteredHistory = useMemo(() =>
     historyData.filter(h => statsFilter === 'all' ? true : statsFilter === 'won' ? h.won : !h.won),
@@ -114,10 +158,25 @@ export default function Index() {
         </nav>
 
         <div className="border-t border-border p-3 space-y-2">
-          <Button className="w-full font-700 bg-primary text-black hover:bg-primary/90 glow-green" size="sm">
-            Личный кабинет
-          </Button>
-          <Button variant="ghost" className="w-full font-600 text-muted-foreground hover:text-white" size="sm">Войти</Button>
+          {user ? (
+            <button onClick={() => setTab('profile')}
+              className="flex w-full items-center gap-2.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2.5 text-left transition-all hover:border-primary/60">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-black font-800 text-xs">
+                {user.first_name[0]}{user.last_name[0]}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-700 text-white truncate">{user.first_name} {user.last_name}</div>
+                <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+              </div>
+            </button>
+          ) : (
+            <>
+              <Button onClick={() => setShowAuth(true)} className="w-full font-700 bg-primary text-black hover:bg-primary/90" size="sm">
+                Личный кабинет
+              </Button>
+              <Button variant="ghost" onClick={() => setShowAuth(true)} className="w-full font-600 text-muted-foreground hover:text-white" size="sm">Войти</Button>
+            </>
+          )}
         </div>
       </aside>
 
@@ -125,20 +184,20 @@ export default function Index() {
       <div className="flex flex-1 flex-col overflow-hidden">
 
         {/* TOP BAR — mobile */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4 lg:hidden">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-3 lg:hidden">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-black">
               <Icon name="Zap" size={16} />
             </div>
             <Brand />
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
             {tabs.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
+              <button key={t.id} onClick={() => t.id === 'profile' && !user ? setShowAuth(true) : setTab(t.id)}
                 className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
                   tab === t.id ? 'bg-primary text-black' : 'text-muted-foreground'
                 }`}>
-                <Icon name={t.icon} size={16} />
+                <Icon name={t.icon} size={15} />
               </button>
             ))}
           </div>
@@ -246,8 +305,9 @@ export default function Index() {
                         <div className="font-700 text-white truncate text-sm">{p.match}</div>
                         <div className="text-xs text-muted-foreground">{p.league} · {p.dateStr}</div>
                       </div>
-                      <Button size="sm" className="shrink-0 bg-secondary text-white font-700 text-xs hover:bg-secondary/90 glow-orange">
-                        {p.price} ₽
+                      <Button size="sm" onClick={() => handleBuy(p, i)} disabled={buyDone.includes(i) || buyingId === i}
+                        className="shrink-0 bg-secondary text-white font-700 text-xs hover:bg-secondary/90 glow-orange min-w-[70px]">
+                        {buyDone.includes(i) ? '✅ Куплен' : buyingId === i ? '...' : `${p.price} ₽`}
                       </Button>
                     </div>
                   ))}
@@ -309,8 +369,14 @@ export default function Index() {
                         <span className="font-600 text-white">{p.dateStr}</span>
                         <span className="ml-auto text-muted-foreground">{p.analyst}</span>
                       </div>
-                      <Button className="mt-3 w-full font-700 bg-secondary text-white hover:bg-secondary/90 glow-orange">
-                        <Icon name="ShoppingCart" size={16} className="mr-2" /> {p.price} ₽
+                      <Button onClick={() => handleBuy(p, i)} disabled={buyDone.includes(i) || buyingId === i}
+                        className="mt-3 w-full font-700 bg-secondary text-white hover:bg-secondary/90 glow-orange">
+                        {buyDone.includes(i)
+                          ? <><Icon name="Check" size={16} className="mr-2" /> Куплен</>
+                          : buyingId === i
+                            ? <Icon name="Loader2" size={16} className="animate-spin" />
+                            : <><Icon name="ShoppingCart" size={16} className="mr-2" /> {p.price} ₽</>
+                        }
                       </Button>
                     </div>
                   ))}
@@ -533,8 +599,38 @@ export default function Index() {
             </div>
           )}
 
+          {/* ── ПРОФИЛЬ ── */}
+          {tab === 'profile' && (
+            user
+              ? <ProfilePage user={user} onLogout={handleLogout} />
+              : (
+                <div className="flex flex-col items-center justify-center h-full gap-4 p-8 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 border border-primary/30">
+                    <Icon name="User" size={32} className="text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="font-display text-xl font-800 text-white">Личный кабинет</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Войдите или зарегистрируйтесь, чтобы покупать прогнозы и смотреть историю</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button onClick={() => setShowAuth(true)} className="bg-primary text-black font-700 hover:bg-primary/90 px-6">
+                      Войти / Зарегистрироваться
+                    </Button>
+                  </div>
+                </div>
+              )
+          )}
+
         </main>
       </div>
+
+      {/* Модалка авторизации */}
+      {showAuth && (
+        <AuthModal
+          onSuccess={handleAuthSuccess}
+          onClose={() => setShowAuth(false)}
+        />
+      )}
     </div>
   );
 }

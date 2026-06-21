@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Register user",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "register", "email": "autotest@profi.ru", "first_name": "Иван", "last_name": "Петров", "password": "test123"},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
