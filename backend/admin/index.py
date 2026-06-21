@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+# v2
 
 SCHEMA = os.environ['MAIN_DB_SCHEMA']
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', '')
