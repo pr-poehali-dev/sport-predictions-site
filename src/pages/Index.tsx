@@ -3,7 +3,10 @@ import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { historyData } from '@/data/historyData';
 
-const HERO_IMG = 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/cc9d23a4-7ede-41dc-8e68-2c98c565e584.jpg';
+const HERO_IMGS = [
+  { url: 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/39caaf6f-240d-4753-b02b-47746d655bdb.jpg', label: 'Роналду' },
+  { url: 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/712edfd7-e9c1-4535-a4af-44ee9d206c05.jpg', label: 'Месси' },
+];
 
 const allPredictions = [
   { sport: '⚽', match: 'Испания — Франция', league: 'Лига Наций · финал', desc: 'Разбор тактики, статистика личных встреч, составы.', dateObj: new Date('2026-06-22'), dateStr: '22 июня 2026', analyst: 'Руслан Zidane', price: 990 },
@@ -61,6 +64,7 @@ const Brand = () => (
 
 export default function Index() {
   const [tab, setTab] = useState('home');
+  const [heroIdx, setHeroIdx] = useState(0);
   const [msg, setMsg] = useState('');
   const [statsFilter, setStatsFilter] = useState<'all' | 'won' | 'lost'>('all');
   const [statsPage, setStatsPage] = useState(1);
@@ -164,8 +168,24 @@ export default function Index() {
             <div>
               {/* Hero */}
               <div className="relative overflow-hidden min-h-[220px] md:min-h-[280px]">
-                <img src={HERO_IMG} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                {HERO_IMGS.map((img, i) => (
+                  <img key={i} src={img.url} alt={img.label}
+                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${i === heroIdx ? 'opacity-100' : 'opacity-0'}`} />
+                ))}
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, hsl(220 20% 5% / 0.97) 0%, hsl(220 20% 8% / 0.80) 60%, transparent 100%)' }} />
+                {/* Переключатель */}
+                <div className="absolute bottom-3 right-4 flex items-center gap-2 z-10">
+                  {HERO_IMGS.map((img, i) => (
+                    <button key={i} onClick={() => setHeroIdx(i)}
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-700 transition-all ${
+                        i === heroIdx
+                          ? 'border-primary bg-primary text-black'
+                          : 'border-white/20 bg-black/40 text-white/70 hover:border-primary/50 hover:text-white'
+                      }`}>
+                      ⚽ {img.label}
+                    </button>
+                  ))}
+                </div>
                 <div className="relative flex flex-col justify-center px-5 py-8 md:px-10 md:py-12">
                   {/* Бейдж */}
                   <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1.5 backdrop-blur">
