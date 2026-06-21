@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get reviews public",
+      "method": "GET",
+      "path": "/?section=reviews",
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Post review unauthorized",
+      "method": "POST",
+      "path": "/?section=reviews",
+      "body": {"text": "Отлично!", "rating": 5},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

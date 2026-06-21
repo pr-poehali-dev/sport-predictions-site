@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { historyData } from '@/data/historyData';
 import AuthModal from '@/components/AuthModal';
 import ProfilePage from '@/components/ProfilePage';
 import PaymentModal from '@/components/PaymentModal';
-import { apiMe } from '@/api';
+import { apiMe, apiGetChat, apiPostChat, apiGetReviews, apiPostReview } from '@/api';
 
 const HERO_IMGS = [
   { url: 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/39caaf6f-240d-4753-b02b-47746d655bdb.jpg', label: 'Роналду' },
@@ -81,6 +81,20 @@ export default function Index() {
   const [buyDone, setBuyDone] = useState<number[]>([]);
   const PER_PAGE = 25;
 
+  // Чат
+  interface ChatMsg { id: number; user_name: string; text: string; time: string; analyst?: boolean; }
+  const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
+  const [chatLoaded, setChatLoaded] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Отзывы
+  interface Review { id: number; user_name: string; text: string; rating: number; time: string; }
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewSending, setReviewSending] = useState(false);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
+
   // Восстановить сессию при загрузке
   useEffect(() => {
     const token = localStorage.getItem('pp_token');
@@ -105,6 +119,54 @@ export default function Index() {
     if (!user) { setShowAuth(true); return; }
     setPayPrediction(p);
     setBuyDone(d => [...d, idx]);
+  }
+
+  // Загрузка чата при первом открытии вкладки
+  useEffect(() => {
+    if (tab === 'chat' && !chatLoaded) {
+      apiGetChat().then(res => {
+        if (res.ok) {
+          const staticMsgs: ChatMsg[] = chatMessages.map((m, i) => ({
+            id: -i - 1, user_name: m.user, text: m.text, time: m.time, analyst: m.analyst,
+          }));
+          setChatMsgs([...staticMsgs, ...res.messages]);
+        }
+        setChatLoaded(true);
+      });
+    }
+    if (tab === 'home' && !reviewsLoaded) {
+      apiGetReviews().then(res => {
+        if (res.ok) setReviews(res.reviews);
+        setReviewsLoaded(true);
+      });
+    }
+  }, [tab]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMsgs]);
+
+  async function sendChatMsg() {
+    if (!user) { setShowAuth(true); return; }
+    if (!msg.trim()) return;
+    const res = await apiPostChat(msg.trim());
+    if (res.ok) {
+      setChatMsgs(m => [...m, res.message]);
+      setMsg('');
+    }
+  }
+
+  async function sendReview() {
+    if (!user) { setShowAuth(true); return; }
+    if (!reviewText.trim()) return;
+    setReviewSending(true);
+    const res = await apiPostReview(reviewText.trim(), reviewRating);
+    if (res.ok) {
+      setReviews(r => [res.review, ...r]);
+      setReviewText('');
+      setReviewRating(5);
+    }
+    setReviewSending(false);
   }
 
   const filteredHistory = useMemo(() =>
@@ -326,6 +388,77 @@ export default function Index() {
                   ))}
                 </div>
               </div>
+
+              {/* ── ОТЗЫВЫ ── */}
+              <div className="border-t border-border p-4 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-1 rounded-full bg-secondary" />
+                  <h2 className="font-display text-base font-800 uppercase tracking-wide text-white">Отзывы клиентов</h2>
+                  <span className="ml-auto text-xs text-muted-foreground">{reviews.length} отзывов</span>
+                </div>
+
+                {/* Форма — только для авторизованных */}
+                {user ? (
+                  <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                    <div className="text-xs font-700 text-white">Ваш отзыв</div>
+                    {/* Рейтинг */}
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <button key={s} onClick={() => setReviewRating(s)}
+                          className={`text-xl transition-transform hover:scale-110 ${s <= reviewRating ? 'opacity-100' : 'opacity-30'}`}>
+                          ⭐
+                        </button>
+                      ))}
+                      <span className="ml-2 text-xs text-muted-foreground self-center">{reviewRating} из 5</span>
+                    </div>
+                    <textarea value={reviewText} onChange={e => setReviewText(e.target.value)}
+                      placeholder="Поделитесь впечатлениями о сервисе..." rows={3}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-muted-foreground outline-none focus:border-primary transition-colors resize-none" />
+                    <Button onClick={sendReview} disabled={reviewSending || !reviewText.trim()}
+                      className="w-full bg-primary text-black font-700 hover:bg-primary/90 h-9">
+                      {reviewSending ? <Icon name="Loader2" size={16} className="animate-spin" /> : <><Icon name="Send" size={15} className="mr-2" />Отправить отзыв</>}
+                    </Button>
+                  </div>
+                ) : (
+                  <button onClick={() => setShowAuth(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card py-4 text-sm font-700 text-muted-foreground transition-all hover:border-primary/40 hover:text-primary">
+                    <Icon name="Lock" size={16} />
+                    Войдите, чтобы оставить отзыв
+                  </button>
+                )}
+
+                {/* Список отзывов */}
+                {reviews.length === 0 && reviewsLoaded && (
+                  <div className="text-center py-6 text-sm text-muted-foreground">
+                    Пока нет отзывов. Будьте первым!
+                  </div>
+                )}
+                <div className="space-y-3">
+                  {reviews.map(r => (
+                    <div key={r.id} className="rounded-xl border border-border bg-card p-4 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 border border-primary/30 font-700 text-sm text-primary">
+                            {r.user_name[0]}
+                          </div>
+                          <div>
+                            <div className="text-sm font-700 text-white">{r.user_name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(r.time).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-0.5">
+                          {[1,2,3,4,5].map(s => (
+                            <span key={s} className={s <= r.rating ? 'opacity-100' : 'opacity-20'}>⭐</span>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{r.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -538,10 +671,11 @@ export default function Index() {
           {/* ── ЧАТ ── */}
           {tab === 'chat' && (
             <div className="flex h-full flex-col">
+              {/* Аналитики онлайн */}
               <div className="shrink-0 border-b border-border bg-card">
                 <div className="flex gap-2 overflow-x-auto p-3 scrollbar-none">
                   {analysts.map(a => (
-                    <div key={a.name} className="flex shrink-0 items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 transition-all hover:border-primary/40">
+                    <div key={a.name} className="flex shrink-0 items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
                       <div className="relative">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-black font-display font-800 text-sm">{a.name[0]}</div>
                         {a.online && <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background bg-primary" />}
@@ -555,15 +689,16 @@ export default function Index() {
                 </div>
               </div>
 
+              {/* Сообщения */}
               <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                {chatMessages.map((m, i) => (
+                {chatMsgs.map((m, i) => (
                   <div key={i} className="flex gap-3">
                     <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-800 font-display ${m.analyst ? 'bg-primary text-black' : 'bg-muted text-white'}`}>
-                      {m.user[0]}
+                      {m.user_name[0]}
                     </div>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-sm font-700 text-white">{m.user}</span>
+                        <span className="text-sm font-700 text-white">{m.user_name}</span>
                         {m.analyst && <span className="rounded bg-primary/20 border border-primary/30 px-1.5 py-0.5 text-xs font-600 text-primary">аналитик</span>}
                         <span className="text-xs text-muted-foreground">{m.time}</span>
                       </div>
@@ -571,16 +706,29 @@ export default function Index() {
                     </div>
                   </div>
                 ))}
+                <div ref={chatEndRef} />
               </div>
 
-              <div className="shrink-0 flex gap-2 border-t border-border p-3">
-                <input value={msg} onChange={e => setMsg(e.target.value)}
-                  placeholder="Написать сообщение..."
-                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-muted-foreground outline-none focus:border-primary transition-colors" />
-                <Button className="shrink-0 bg-primary text-black font-700 hover:bg-primary/90">
-                  <Icon name="Send" size={17} />
-                </Button>
-              </div>
+              {/* Ввод — только для авторизованных */}
+              {user ? (
+                <div className="shrink-0 flex gap-2 border-t border-border p-3">
+                  <input value={msg} onChange={e => setMsg(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && sendChatMsg()}
+                    placeholder="Написать сообщение..."
+                    className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-muted-foreground outline-none focus:border-primary transition-colors" />
+                  <Button onClick={sendChatMsg} className="shrink-0 bg-primary text-black font-700 hover:bg-primary/90">
+                    <Icon name="Send" size={17} />
+                  </Button>
+                </div>
+              ) : (
+                <div className="shrink-0 border-t border-border p-3">
+                  <button onClick={() => setShowAuth(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 py-3 text-sm font-700 text-primary transition-all hover:bg-primary/15">
+                    <Icon name="Lock" size={16} />
+                    Войдите, чтобы писать в чат
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
