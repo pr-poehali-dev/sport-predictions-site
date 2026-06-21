@@ -45,7 +45,7 @@ const tabs = [
 
 const Brand = () => (
   <span className="font-display text-lg font-800 tracking-tight leading-none">
-    Аналитика<span className="text-secondary">&</span>Прогнозы
+    Профи<span className="text-secondary">Прогноз</span>
   </span>
 );
 
@@ -100,7 +100,7 @@ export default function Index() {
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Icon name="LineChart" size={15} />
             </div>
-            <span className="font-display text-base font-800">А<span className="text-secondary">&</span>П</span>
+            <span className="font-display text-base font-800">Профи<span className="text-secondary">Прогноз</span></span>
           </div>
           <div className="flex gap-1">
             {tabs.map(t => (
