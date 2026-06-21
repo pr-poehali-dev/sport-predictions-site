@@ -130,7 +130,11 @@ export default function Index() {
               <div className="font-display text-xl font-900 leading-none text-white">
                 Профи<span className="text-primary">Прогноз</span>
               </div>
-              <div className="text-xs text-muted-foreground leading-none mt-0.5">Спортивная аналитика</div>
+              <div className="overflow-hidden w-36 mt-0.5">
+                <div className="animate-ticker whitespace-nowrap text-xs text-muted-foreground" style={{ display: 'inline-block' }}>
+                  Студия аналитики спортивных событий&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;Студия аналитики спортивных событий&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;
+                </div>
+              </div>
             </div>
           </div>
 
