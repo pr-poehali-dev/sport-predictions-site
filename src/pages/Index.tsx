@@ -6,10 +6,10 @@ import { historyData } from '@/data/historyData';
 const HERO_IMG = 'https://cdn.poehali.dev/projects/aa16d5c7-c763-4514-bc5e-2499ef91f2f8/files/cc9d23a4-7ede-41dc-8e68-2c98c565e584.jpg';
 
 const allPredictions = [
-  { sport: '⚽', match: 'Испания — Франция', league: 'Лига Наций · финал', desc: 'Разбор тактики, статистика личных встреч, составы.', dateObj: new Date('2026-06-22'), dateStr: '22 июня 2026', analyst: 'Алексей Громов', price: 990 },
-  { sport: '🏀', match: 'Евробаскет 2026', league: 'Групповой этап · старт', desc: 'Серия прогнозов на групповой этап от Дмитрия Орлова.', dateObj: new Date('2026-06-26'), dateStr: '26 июня 2026', analyst: 'Дмитрий Орлов', price: 790 },
+  { sport: '⚽', match: 'Испания — Франция', league: 'Лига Наций · финал', desc: 'Разбор тактики, статистика личных встреч, составы.', dateObj: new Date('2026-06-22'), dateStr: '22 июня 2026', analyst: 'Руслан Zidane', price: 990 },
+  { sport: '🏀', match: 'Евробаскет 2026', league: 'Групповой этап · старт', desc: 'Серия прогнозов на групповой этап от Романа Juventino.', dateObj: new Date('2026-06-26'), dateStr: '26 июня 2026', analyst: 'Роман Juventino', price: 790 },
   { sport: '🎾', match: 'Уимблдон 2026', league: 'Старт турнира', desc: 'Сетка, фавориты, ставки на первые круги.', dateObj: new Date('2026-06-30'), dateStr: '30 июня 2026', analyst: 'Игорь Соколов', price: 690 },
-  { sport: '⚽', match: 'Суперкубок Испании', league: 'Реал — Барселона', desc: 'Детальный предматчевый разбор эль-класико.', dateObj: new Date('2026-07-12'), dateStr: '12 июля 2026', analyst: 'Алексей Громов', price: 1290 },
+  { sport: '⚽', match: 'Суперкубок Испании', league: 'Реал — Барселона', desc: 'Детальный предматчевый разбор эль-класико.', dateObj: new Date('2026-07-12'), dateStr: '12 июля 2026', analyst: 'Руслан Zidane', price: 1290 },
 ];
 
 const tickerItems = [
@@ -31,16 +31,16 @@ const lostCount = historyData.filter(h => !h.won).length;
 const winRate = Math.round((wonCount / historyData.length) * 100);
 
 const analysts = [
-  { name: 'Алексей Громов', spec: 'Футбол · ТОП-аналитик', roi: '+47%', online: true, wins: 94 },
-  { name: 'Дмитрий Орлов', spec: 'Баскетбол · NBA', roi: '+38%', online: true, wins: 78 },
+  { name: 'Руслан Zidane', spec: 'Футбол · ТОП-аналитик', roi: '+47%', online: true, wins: 94 },
+  { name: 'Роман Juventino', spec: 'Баскетбол · NBA', roi: '+38%', online: true, wins: 78 },
   { name: 'Игорь Соколов', spec: 'Теннис · ATP/WTA', roi: '+31%', online: false, wins: 43 },
 ];
 
 const chatMessages = [
-  { user: 'Алексей Громов', analyst: true, text: 'Финал ЛЧ ПСЖ — Арсенал: давал «обе забьют», прошло в дополнительное время 1:1, серия пенальти. Поздравляю всех кто взял! ✅', time: '30 мая, 23:47' },
+  { user: 'Руслан Zidane', analyst: true, text: 'Финал ЛЧ ПСЖ — Арсенал: давал «обе забьют», прошло в дополнительное время 1:1, серия пенальти. Поздравляю всех кто взял! ✅', time: '30 мая, 23:47' },
   { user: 'Максим К.', analyst: false, text: 'Огромное спасибо! Поставил на обе забьют, зашло в идеальный момент 🎉', time: '30 мая, 23:51' },
-  { user: 'Дмитрий Орлов', analyst: true, text: 'Никс взяли чемпионство! Кто брал победу Никс с кф 2.05 — отличный заход. Разбор по Евробаскету выйдет в пятницу.', time: '18 июн, 10:22' },
-  { user: 'Андрей В.', analyst: false, text: 'Дмитрий, спасибо! Третий прогноз подряд в плюс 🔥', time: '18 июн, 10:35' },
+  { user: 'Роман Juventino', analyst: true, text: 'Никс взяли чемпионство! Кто брал победу Никс с кф 2.05 — отличный заход. Разбор по Евробаскету выйдет в пятницу.', time: '18 июн, 10:22' },
+  { user: 'Андрей В.', analyst: false, text: 'Роман, спасибо! Третий прогноз подряд в плюс 🔥', time: '18 июн, 10:35' },
   { user: 'Игорь Соколов', analyst: true, text: 'Готовлю разбор Уимблдона — старт 30 июня. Алькарас главный фаворит. Публикую в пятницу.', time: '20 июн, 11:04' },
   { user: 'Сергей М.', analyst: false, text: 'Подписка на этот месяц точно отбилась 😄 Жду Уимблдон!', time: '20 июн, 12:18' },
 ];
