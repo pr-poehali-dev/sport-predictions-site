@@ -115,91 +115,80 @@ export default function Index() {
   const pagedHistory = filteredHistory.slice((statsPage - 1) * PER_PAGE, statsPage * PER_PAGE);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground">
 
-      {/* SIDEBAR — desktop */}
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-border lg:flex" style={{ background: 'hsl(220 20% 6%)' }}>
-        {/* Лого */}
-        <div className="flex h-16 items-center gap-2.5 border-b border-border px-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-black font-800">
-            <Icon name="Zap" size={18} />
+      {/* ══ ШАПКА ══ */}
+      <header className="shrink-0 border-b border-border" style={{ background: 'hsl(220 20% 5%)' }}>
+        {/* Верхняя строка: лого + кабинет */}
+        <div className="flex h-16 items-center justify-between px-4 md:px-6">
+          {/* Лого */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-black">
+              <Icon name="Zap" size={18} />
+            </div>
+            <div>
+              <div className="font-display text-xl font-900 leading-none text-white">
+                Профи<span className="text-primary">Прогноз</span>
+              </div>
+              <div className="text-xs text-muted-foreground leading-none mt-0.5">Спортивная аналитика</div>
+            </div>
           </div>
-          <Brand />
+
+          {/* Центр — LIVE бейдж (только desktop) */}
+          <div className="hidden md:flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+            </span>
+            <span className="text-xs font-700 text-primary tracking-wide">LIVE · 3 матча сегодня</span>
+          </div>
+
+          {/* Кнопка кабинета */}
+          <div className="flex items-center gap-2">
+            {user ? (
+              <button onClick={() => setTab('profile')}
+                className="flex items-center gap-2.5 rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 transition-all hover:border-primary/70 hover:bg-primary/15">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-black font-800 text-xs shrink-0">
+                  {user.first_name[0]}{user.last_name[0]}
+                </div>
+                <div className="hidden sm:block text-left">
+                  <div className="text-xs font-700 text-white leading-none">{user.first_name} {user.last_name}</div>
+                  <div className="text-xs text-primary font-600 leading-none mt-0.5">Мой кабинет</div>
+                </div>
+                <Icon name="ChevronDown" size={14} className="text-muted-foreground hidden sm:block" />
+              </button>
+            ) : (
+              <Button onClick={() => setShowAuth(true)}
+                className="bg-primary text-black font-700 hover:bg-primary/90 h-9 px-4 text-sm gap-2">
+                <Icon name="User" size={16} />
+                <span className="hidden sm:inline">Личный кабинет</span>
+                <span className="sm:hidden">Войти</span>
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* Лайв-бейдж */}
-        <div className="mx-3 mt-3 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-          </span>
-          <span className="text-xs font-700 text-primary">LIVE · 3 матча</span>
-        </div>
-
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 mt-2">
+        {/* Навигация */}
+        <div className="flex overflow-x-auto border-t border-border/50 scrollbar-none">
           {tabs.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-600 transition-all text-left ${
+            <button key={t.id}
+              onClick={() => t.id === 'profile' && !user ? setShowAuth(true) : setTab(t.id)}
+              className={`flex shrink-0 items-center gap-2 px-4 py-3 text-sm font-600 transition-all border-b-2 whitespace-nowrap ${
                 tab === t.id
-                  ? 'bg-primary text-black font-700 glow-green'
-                  : 'text-muted-foreground hover:bg-muted hover:text-white'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-white hover:border-white/20'
               }`}>
-              <Icon name={t.icon} size={18} />
-              {t.label}
+              <Icon name={t.icon} size={15} />
+              <span className="hidden sm:inline">{t.label}</span>
+              <span className="sm:hidden">{t.icon === 'Home' ? 'Главная' : t.label}</span>
             </button>
           ))}
-        </nav>
-
-        <div className="border-t border-border p-3 space-y-2">
-          {user ? (
-            <button onClick={() => setTab('profile')}
-              className="flex w-full items-center gap-2.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2.5 text-left transition-all hover:border-primary/60">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-black font-800 text-xs">
-                {user.first_name[0]}{user.last_name[0]}
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs font-700 text-white truncate">{user.first_name} {user.last_name}</div>
-                <div className="text-xs text-muted-foreground truncate">{user.email}</div>
-              </div>
-            </button>
-          ) : (
-            <>
-              <Button onClick={() => setShowAuth(true)} className="w-full font-700 bg-primary text-black hover:bg-primary/90" size="sm">
-                Личный кабинет
-              </Button>
-              <Button variant="ghost" onClick={() => setShowAuth(true)} className="w-full font-600 text-muted-foreground hover:text-white" size="sm">Войти</Button>
-            </>
-          )}
         </div>
-      </aside>
-
-      {/* MAIN */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-
-        {/* TOP BAR — mobile */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-3 lg:hidden">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-black">
-              <Icon name="Zap" size={16} />
-            </div>
-            <Brand />
-          </div>
-          <div className="flex gap-1 items-center">
-            {tabs.map(t => (
-              <button key={t.id} onClick={() => t.id === 'profile' && !user ? setShowAuth(true) : setTab(t.id)}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                  tab === t.id ? 'bg-primary text-black' : 'text-muted-foreground'
-                }`}>
-                <Icon name={t.icon} size={15} />
-              </button>
-            ))}
-          </div>
-        </header>
 
         {/* Бегущая строка */}
-        <div className="flex h-8 shrink-0 items-center overflow-hidden border-b border-border bg-muted/60">
-          <div className="flex shrink-0 items-center border-r border-border bg-primary px-3 h-full">
-            <span className="text-xs font-800 text-black uppercase tracking-wider">Результаты</span>
+        <div className="flex h-7 items-center overflow-hidden border-t border-border/50 bg-black/20">
+          <div className="flex shrink-0 items-center border-r border-border/50 bg-primary px-3 h-full">
+            <span className="text-xs font-800 text-black uppercase tracking-wider">Итоги</span>
           </div>
           <div className="overflow-hidden flex-1">
             <div className="flex animate-ticker whitespace-nowrap gap-8 px-4">
@@ -211,9 +200,10 @@ export default function Index() {
             </div>
           </div>
         </div>
+      </header>
 
-        {/* CONTENT */}
-        <main className="flex-1 overflow-y-auto">
+      {/* CONTENT */}
+      <main className="flex-1 overflow-y-auto">
 
           {/* ── ГЛАВНАЯ ── */}
           {tab === 'home' && (
@@ -613,7 +603,6 @@ export default function Index() {
           )}
 
         </main>
-      </div>
 
       {/* Модалка авторизации */}
       {showAuth && (
